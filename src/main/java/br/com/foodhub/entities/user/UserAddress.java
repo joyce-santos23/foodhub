@@ -1,2 +1,32 @@
-package br.com.foodhub.entities.user;public class UserAddress {
+package br.com.foodhub.entities.user;
+
+import br.com.foodhub.entities.address.AddressBase;
+import br.com.foodhub.entities.base.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
+public class UserAddress extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private AddressBase address;
+    private String complement;
+    private String numberStreet;
+    private boolean primaryAddress;
 }
