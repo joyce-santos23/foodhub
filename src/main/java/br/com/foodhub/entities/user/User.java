@@ -20,8 +20,8 @@ import java.util.List;
 public abstract class User extends BaseEntity {
 
     private String name;
+    @Column(unique = true)
     private String email;
-    private String login;
     private String password;
     private String phone;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

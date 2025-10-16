@@ -17,4 +17,5 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "owner")
 public class Owner extends User {
     private String cnpj;
+    private String businessName;
 }

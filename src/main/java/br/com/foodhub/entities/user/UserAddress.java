@@ -28,5 +28,6 @@ public class UserAddress extends BaseEntity {
     private AddressBase address;
     private String complement;
     private String numberStreet;
+    @Column(name = "primary_address", nullable = true)
     private boolean primaryAddress;
 }
