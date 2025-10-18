@@ -16,4 +16,12 @@ public record OwnerResponseDto(
         @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
         LocalDateTime updatedAt
 ) {
+        public String phone() {
+                if (phone == null || phone.length() != 11) return phone;
+                return String.format("(%s) %s-%s",
+                        phone.substring(0, 2),
+                        phone.substring(2, 7),
+                        phone.substring(7)
+                );
+        }
 }

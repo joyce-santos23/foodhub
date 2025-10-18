@@ -5,10 +5,12 @@ import br.com.foodhub.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,5 +36,30 @@ public class GlobalExceptionHandler {
                 Map.of("path", request.getRequestURI())
         );
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        // Captura os erros de campo
+        Map<String, String> fieldErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        fieldError -> fieldError.getField(),
+                        fieldError -> fieldError.getDefaultMessage(),
+                        (existing, replacement) -> existing // evita duplicatas
+                ));
+
+        return ProblemDetailFactory.create(
+                HttpStatus.BAD_REQUEST,
+                "https://api.foodhub.com/errors/validation",
+                "Erro de validação",
+                "Existem campos inválidos na requisição",
+                Map.of(
+                        "path", request.getRequestURI(),
+                        "fields", fieldErrors
+                )
+        );
+    }
+
 }
 

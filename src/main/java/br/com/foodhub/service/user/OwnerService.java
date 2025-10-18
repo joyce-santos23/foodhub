@@ -1,46 +1,42 @@
 package br.com.foodhub.service.user;
 
 import br.com.foodhub.dto.pagination.PageResponseDto;
-import br.com.foodhub.dto.user.CustomerRequestDto;
-import br.com.foodhub.dto.user.CustomerResponseDto;
-import br.com.foodhub.entities.user.Customer;
+import br.com.foodhub.dto.user.OwnerRequestDto;
+import br.com.foodhub.dto.user.OwnerResponseDto;
+import br.com.foodhub.entities.user.Owner;
 import br.com.foodhub.exception.ResourceConflictException;
 import br.com.foodhub.exception.ResourceNotFoundException;
-import br.com.foodhub.mapper.user.CustomerMapper;
-import br.com.foodhub.repository.user.CustomerRepository;
+import br.com.foodhub.mapper.user.OwnerMapper;
+import br.com.foodhub.repository.user.OwnerRepository;
 import br.com.foodhub.service.pagination.PaginationService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @AllArgsConstructor
 @Service
-public class CustomerService {
-    private CustomerRepository repository;
-    private CustomerMapper mapper;
+public class OwnerService {
+    private OwnerRepository repository;
+    private OwnerMapper mapper;
 
-    public PageResponseDto<CustomerResponseDto> findAllPaginated(int page, int size, String sortBy, boolean asc){
+    public PageResponseDto<OwnerResponseDto> findAllPaginated(int page, int size, String sortBy, boolean asc){
         return PaginationService.paginate(repository, page - 1, size, sortBy, asc, mapper::toResponse);
     }
 
-    public CustomerResponseDto findById(Long id) {
-        Customer customer = repository.findById(id)
+    public OwnerResponseDto findById(Long id) {
+        Owner owner = repository.findById(id)
                 .orElseThrow(() -> new ResourceConflictException("Usuário com ID " + id + " não foi encontrado!"));
-        return mapper.toResponse(customer);
+        return mapper.toResponse(owner);
     }
 
-    public CustomerResponseDto save(CustomerRequestDto dto) {
+    public OwnerResponseDto save(OwnerRequestDto dto) {
         checkUniqueEmail(dto.email());
         checkUniquePhone(normalizePhone(dto.phone()));
-        if(dto.cpf() != null) {
-            checkUniqueCpf(dto.cpf());
+        if(dto.cnpj() != null) {
+            checkUniqueCnpj(dto.cnpj());
         }
 
-        Customer customer = mapper.toEntity(dto);
-        Customer saved = repository.save(customer);
+        Owner owner = mapper.toEntity(dto);
+        Owner saved = repository.save(owner);
         return mapper.toResponse(saved);
     }
 
@@ -51,29 +47,31 @@ public class CustomerService {
         repository.deleteById(id);
     }
 
-    public CustomerResponseDto update(Long id, CustomerRequestDto dto) {
-        Customer customer = repository.findById(id)
+    public OwnerResponseDto update(Long id, OwnerRequestDto dto) {
+        Owner owner = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + id + " não foi encontrado!"));
-        if (dto.name() != null && !dto.name().isBlank()) customer.setName(dto.name());
+        if (dto.name() != null && !dto.name().isBlank()) owner.setName(dto.name());
+
+        if (dto.businessName() != null && !dto.businessName().isBlank()) owner.setBusinessName(dto.businessName());
 
         if (dto.email() != null && !dto.email().isBlank()) {
             checkValidEmail(dto.email());
-            if (!customer.getEmail().equals(dto.email())) {
-                customer.setEmail(dto.email());
+            if (!owner.getEmail().equals(dto.email())) {
+                owner.setEmail(dto.email());
             }
         }
 
-        if (dto.phone() != null && !customer.getPhone().equals(dto.phone())) {
+        if (dto.phone() != null && !owner.getPhone().equals(dto.phone())) {
             checkUniquePhone(dto.phone());
-            customer.setPhone(dto.phone());
+            owner.setPhone(dto.phone());
         }
 
-        if (dto.cpf() != null && !dto.cpf().equals(customer.getCpf())) {
-            checkUniqueCpf(dto.cpf());
-            customer.setCpf(dto.cpf());
+        if (dto.cnpj() != null && !dto.cnpj().equals(owner.getCnpj())) {
+            checkUniqueCnpj(dto.cnpj());
+            owner.setCnpj(dto.cnpj());
         }
 
-        Customer updated = repository.save(customer);
+        Owner updated = repository.save(owner);
         return mapper.toResponse(updated);
     }
 
@@ -84,7 +82,6 @@ public class CustomerService {
         }
         checkUniqueEmail(email);
     }
-
     private void checkUniqueEmail(String email) {
         repository.findByEmail(email).ifPresent(c ->
         { throw new ResourceConflictException("Já existe um usuário com o e-mail " + email); });
@@ -95,9 +92,9 @@ public class CustomerService {
         { throw new ResourceConflictException("Já existe um usuário com o telefone " + phone); });
     }
 
-    private void checkUniqueCpf(String cpf) {
-        repository.findByCpf(cpf).ifPresent(c ->
-        { throw new ResourceConflictException("Já existe um usuário com o CPF " + cpf); });
+    private void checkUniqueCnpj(String cnpj) {
+        repository.findByCnpj(cnpj).ifPresent(c ->
+        { throw new ResourceConflictException("Já existe um usuário com o CNPJ " + cnpj); });
     }
 
     private String normalizePhone(String phone) {

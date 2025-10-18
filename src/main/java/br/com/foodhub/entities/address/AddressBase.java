@@ -19,7 +19,7 @@ public class AddressBase {
     private Long id;
     private String cep;
     private String street;
-    private String Neighborhood;
+    private String neighborhood;
     private String city;
     private String state;
     private String country;

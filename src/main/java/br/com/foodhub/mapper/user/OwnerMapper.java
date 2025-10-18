@@ -11,5 +11,5 @@ import java.util.List;
 public interface OwnerMapper {
     Owner toEntity(OwnerRequestDto dto);
     OwnerResponseDto toResponse(Owner entity);
-    List<OwnerResponseDto> toOwnerResponseList(List<Owner> owners);
+
 }
