@@ -1,7 +1,8 @@
-package br.com.foodhub.entities.user;
+package br.com.foodhub.entities.address;
 
 import br.com.foodhub.entities.address.AddressBase;
 import br.com.foodhub.entities.base.BaseEntity;
+import br.com.foodhub.entities.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,8 +16,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "user_address")
 public class UserAddress extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

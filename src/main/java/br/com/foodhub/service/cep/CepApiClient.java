@@ -8,11 +8,12 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @Service
-public class CepApiClient {
+public class CepApiClient implements AddressLookupClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String URL = "https://viacep.com.br/ws/{cep}/json/";
 
+    @Override
     public AddressBaseDto getAddressByCep(String cep) {
         Map<String, String> response = restTemplate.getForObject(URL, Map.class, cep);
 

@@ -1,6 +1,5 @@
 package br.com.foodhub.entities.address;
 
-import br.com.foodhub.entities.user.UserAddress;
 import jakarta.persistence.*;
 import lombok.*;
 

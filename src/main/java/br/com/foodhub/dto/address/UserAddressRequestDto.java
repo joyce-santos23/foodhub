@@ -12,6 +12,6 @@ public record UserAddressRequestDto(
         String numberStreet,
 
         String complement,
-        boolean primaryAddress
+        Boolean primaryAddress
 ) {
 }

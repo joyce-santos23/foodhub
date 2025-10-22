@@ -2,17 +2,17 @@ package br.com.foodhub.mapper.address;
 
 import br.com.foodhub.dto.address.AddressBaseDto;
 import br.com.foodhub.dto.address.UserAddressResponseDto;
-import br.com.foodhub.entities.user.UserAddress;
+import br.com.foodhub.entities.address.UserAddress;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserAddressMapper {
 
-    @Mapping(target = "address", expression = "java(toAddressBaseDto(userAddres))")
+    @Mapping(target = "address", expression = "java(toAddressBaseDto(userAddress))")
     UserAddressResponseDto toResponseDto(UserAddress userAddress);
 
-    default AddressBaseDto toAddresBaseDto(UserAddress userAddress) {
+    default AddressBaseDto toAddressBaseDto(UserAddress userAddress) {
         var base = userAddress.getAddress();
 
         return new AddressBaseDto(

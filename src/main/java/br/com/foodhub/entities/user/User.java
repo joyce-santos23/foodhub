@@ -1,5 +1,6 @@
 package br.com.foodhub.entities.user;
 
+import br.com.foodhub.entities.address.UserAddress;
 import br.com.foodhub.entities.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
