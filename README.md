@@ -57,7 +57,7 @@ A documentação interativa (Swagger UI) está acessível diretamente no navegad
 | PUT    | `/auth/change-password`     | Alteração de senha do próprio usuário | Autenticado |
 | PUT    | `/auth/{id}/password-reset` | Reset de senha de outro usuário       | ADMIN       |
 
-##Customers
+## Customers
 | Método | Endpoint          | Descrição                            | Permissão   |
 | ------ | ----------------- | ------------------------------------ | ----------- |
 | GET    | `/customers`      | Listar todos os clientes (paginação) | ADMIN       |
@@ -67,7 +67,7 @@ A documentação interativa (Swagger UI) está acessível diretamente no navegad
 | PUT    | `/customers/{id}` | Atualizar cliente                    | Autenticado |
 | DELETE | `/customers/{id}` | Deletar cliente                      | Autenticado |
 
-##Owners
+## Owners
 | Método | Endpoint       | Descrição                          | Permissão   |
 | ------ | -------------- | ---------------------------------- | ----------- |
 | GET    | `/owners`      | Listar todos os owners (paginação) | ADMIN       |
@@ -77,7 +77,7 @@ A documentação interativa (Swagger UI) está acessível diretamente no navegad
 | PUT    | `/owners/{id}` | Atualizar owner                    | Autenticado |
 | DELETE | `/owners/{id}` | Deletar owner                      | Autenticado |
 
-##User Address
+## User Address
 | Método | Endpoint                        | Descrição                     | Permissão   |
 | ------ | ------------------------------- | ----------------------------- | ----------- |
 | GET    | `/{userId}/address`             | Listar endereços do usuário   | Autenticado |
