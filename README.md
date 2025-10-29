@@ -1,6 +1,6 @@
 # 🍔 FoodHub Backend API
 
-O FoodHub é uma API de gerenciamento de usuários e endereços desenvolvida em Spring Boot 3.3.x (Java 21), utilizando PostgreSQL e Docker Compose. O projeto implementa autenticação JWT (JSON Web Token) e controle de acesso baseado em Papéis (RBAC) para garantir a segurança dos recursos.
+O FoodHub é uma API de gerenciamento de usuários e endereços para estabelecimentos, desenvolvida em Spring Boot 3.3.x (Java 21), utilizando PostgreSQL e Docker Compose. O projeto implementa autenticação JWT (JSON Web Token) e controle de acesso baseado em Papéis (RBAC) para garantir a segurança dos recursos.
 
 ## 🔑 Arquitetura e Segurança
 
