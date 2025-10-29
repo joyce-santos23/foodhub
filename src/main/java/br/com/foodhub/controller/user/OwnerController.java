@@ -4,21 +4,25 @@ import br.com.foodhub.dto.generic.ApiResponse;
 import br.com.foodhub.dto.pagination.PageResponseDto;
 import br.com.foodhub.dto.user.OwnerRequestDto;
 import br.com.foodhub.dto.user.OwnerResponseDto;
+import br.com.foodhub.entities.user.User;
 import br.com.foodhub.service.user.OwnerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/owners")
+@RequestMapping("/api/v1/owners")
 @RequiredArgsConstructor
 public class OwnerController {
 
     private final OwnerService service;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<PageResponseDto<OwnerResponseDto>> findAll(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -33,8 +37,16 @@ public class OwnerController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<OwnerResponseDto> findByid(@PathVariable Long id) {
         OwnerResponseDto owner = service.findById(id);
+        return ResponseEntity.ok(owner);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public  ResponseEntity<OwnerResponseDto> getAuthenticatorOwner(@AuthenticationPrincipal User user) {
+        OwnerResponseDto owner = service.findById(user.getId());
         return ResponseEntity.ok(owner);
     }
 
@@ -47,17 +59,20 @@ public class OwnerController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OwnerResponseDto> update(
             @PathVariable Long id,
-            @RequestBody OwnerRequestDto dto
+            @RequestBody OwnerRequestDto dto,
+            @AuthenticationPrincipal User user
     ) {
-        OwnerResponseDto updated = service.update(id, dto);
+        OwnerResponseDto updated = service.update(id, dto, user);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
-        service.delete(id);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        service.delete(id, user);
         return ResponseEntity.ok(new ApiResponse("Usuário deletado com sucesso!"));
     }
 }

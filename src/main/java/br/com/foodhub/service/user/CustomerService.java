@@ -4,12 +4,19 @@ import br.com.foodhub.dto.pagination.PageResponseDto;
 import br.com.foodhub.dto.user.CustomerRequestDto;
 import br.com.foodhub.dto.user.CustomerResponseDto;
 import br.com.foodhub.entities.user.Customer;
+import br.com.foodhub.entities.user.Owner;
+import br.com.foodhub.entities.user.User;
+import br.com.foodhub.entities.user.UserRole;
+import br.com.foodhub.exception.MustReauthenticateException;
 import br.com.foodhub.exception.ResourceConflictException;
 import br.com.foodhub.exception.ResourceNotFoundException;
+import br.com.foodhub.exception.ResourceOwnershipException;
 import br.com.foodhub.mapper.user.CustomerMapper;
 import br.com.foodhub.repository.user.CustomerRepository;
 import br.com.foodhub.service.pagination.PaginationService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +28,7 @@ import java.util.stream.Collectors;
 public class CustomerService {
     private CustomerRepository repository;
     private CustomerMapper mapper;
+    private PasswordEncoder passwordEncoder;
 
     public PageResponseDto<CustomerResponseDto> findAllPaginated(int page, int size, String sortBy, boolean asc){
         return PaginationService.paginate(repository, page - 1, size, sortBy, asc, mapper::toResponse);
@@ -31,7 +39,7 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceConflictException("Usuário com ID " + id + " não foi encontrado!"));
         return mapper.toResponse(customer);
     }
-
+    @Transactional
     public CustomerResponseDto save(CustomerRequestDto dto) {
         checkUniqueEmail(dto.email());
         checkUniquePhone(normalizePhone(dto.phone()));
@@ -40,27 +48,33 @@ public class CustomerService {
         }
 
         Customer customer = mapper.toEntity(dto);
+        String encriptedPassword = passwordEncoder.encode(dto.password());
+        customer.setPassword(encriptedPassword);
+        customer.setRole(UserRole.CUSTOMER);
         Customer saved = repository.save(customer);
         return mapper.toResponse(saved);
     }
 
-    public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Usuário com ID " + id + " não encontrado!");
-        }
-        repository.deleteById(id);
+    public void delete(Long id, User user) {
+        Customer customer = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário com o ID " + id + " não encontrado!"));
+
+        checkPermissionOrPossession(customer, user);
+        repository.delete(customer);
     }
 
-    public CustomerResponseDto update(Long id, CustomerRequestDto dto) {
+    public CustomerResponseDto update(Long id, CustomerRequestDto dto, User user) {
         Customer customer = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + id + " não foi encontrado!"));
+
+        checkPermissionOrPossession(customer, user);
         if (dto.name() != null && !dto.name().isBlank()) customer.setName(dto.name());
 
-        if (dto.email() != null && !dto.email().isBlank()) {
+        boolean emailChanged = false;
+        if (dto.email() != null && !dto.email().isBlank() && !customer.getEmail().equals(dto.email())) {
             checkValidEmail(dto.email());
-            if (!customer.getEmail().equals(dto.email())) {
-                customer.setEmail(dto.email());
-            }
+            customer.setEmail(dto.email());
+            emailChanged = true;
         }
 
         if (dto.phone() != null && !customer.getPhone().equals(dto.phone())) {
@@ -74,7 +88,19 @@ public class CustomerService {
         }
 
         Customer updated = repository.save(customer);
+        if (emailChanged) {
+            throw new MustReauthenticateException("Seu e-mail foi alterado. Por favor, faça login novamente para obter um novo token.");
+        }
         return mapper.toResponse(updated);
+    }
+
+    private void checkPermissionOrPossession(Customer customer, User authenticatedUser) {
+        boolean isAdmin = authenticatedUser.getRole().equals(UserRole.ADMIN);
+        boolean isResourceOwner = customer.getId().equals(authenticatedUser.getId());
+
+        if (!isAdmin && !isResourceOwner) {
+            throw new IllegalArgumentException("Você não tem permissão para manipular este recurso.");
+        }
     }
 
     private void checkValidEmail(String email) {
