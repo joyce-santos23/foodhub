@@ -3,6 +3,7 @@ package br.com.foodhub.service.user;
 import br.com.foodhub.dto.pagination.PageResponseDto;
 import br.com.foodhub.dto.user.CustomerRequestDto;
 import br.com.foodhub.dto.user.CustomerResponseDto;
+import br.com.foodhub.dto.user.CustomerUpdateDto;
 import br.com.foodhub.entities.user.Customer;
 import br.com.foodhub.entities.user.Owner;
 import br.com.foodhub.entities.user.User;
@@ -63,7 +64,7 @@ public class CustomerService {
         repository.delete(customer);
     }
 
-    public CustomerResponseDto update(Long id, CustomerRequestDto dto, User user) {
+    public CustomerResponseDto update(Long id, CustomerUpdateDto dto, User user) {
         Customer customer = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + id + " não foi encontrado!"));
 
@@ -82,9 +83,13 @@ public class CustomerService {
             customer.setPhone(dto.phone());
         }
 
-        if (dto.cpf() != null && !dto.cpf().equals(customer.getCpf())) {
-            checkUniqueCpf(dto.cpf());
-            customer.setCpf(dto.cpf());
+        if (dto.cpf() != null) {
+            if (customer.getCpf() == null) {
+                checkUniqueCpf(dto.cpf());
+                customer.setCpf(dto.cpf());
+            } else if (!dto.cpf().equals(customer.getCpf())) {
+                throw new ResourceConflictException("CPF não pode ser alterado uma vez cadastrado!");
+            }
         }
 
         Customer updated = repository.save(customer);

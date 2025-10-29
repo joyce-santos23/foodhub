@@ -1,5 +1,6 @@
 package br.com.foodhub.controller.address;
 
+import br.com.foodhub.controller.api.address.UserAddressApi;
 import br.com.foodhub.service.address.UserAddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import br.com.foodhub.dto.address.UserAddressRequestDto;
 import br.com.foodhub.dto.address.UserAddressResponseDto;
-import br.com.foodhub.dto.generic.ApiResponse;
+import br.com.foodhub.dto.generic.ApiResponseGen;
 import br.com.foodhub.entities.user.User;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,12 +19,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/{userId}/address")
-public class UserAddressController {
+public class UserAddressController implements UserAddressApi {
     private final UserAddressService service;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<UserAddressResponseDto>> getAll(
+    public ResponseEntity<List<UserAddressResponseDto>> getAllAddress(
             @PathVariable Long userId,
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(service.getAll(user, userId));
@@ -65,13 +66,13 @@ public class UserAddressController {
 
     @DeleteMapping("/{addressId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse> deleteAddress(
+    public ResponseEntity<ApiResponseGen> deleteAddress(
             @PathVariable Long userId,
             @PathVariable Long addressId,
             @AuthenticationPrincipal User user
     ) {
         service.delete(userId, addressId, user);
-        return ResponseEntity.ok(new ApiResponse("Endereço deletado com sucesso!"));
+        return ResponseEntity.ok(new ApiResponseGen("Endereço deletado com sucesso!"));
 
     }
 }

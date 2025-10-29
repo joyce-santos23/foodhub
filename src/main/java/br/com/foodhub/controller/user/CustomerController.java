@@ -1,26 +1,25 @@
 package br.com.foodhub.controller.user;
 
-import br.com.foodhub.dto.generic.ApiResponse;
+import br.com.foodhub.controller.api.user.CustomerApi;
+import br.com.foodhub.dto.generic.ApiResponseGen;
 import br.com.foodhub.dto.pagination.PageResponseDto;
 import br.com.foodhub.dto.user.CustomerRequestDto;
 import br.com.foodhub.dto.user.CustomerResponseDto;
+import br.com.foodhub.dto.user.CustomerUpdateDto;
 import br.com.foodhub.entities.user.User;
 import br.com.foodhub.service.user.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
-public class CustomerController {
+public class CustomerController implements CustomerApi {
 
     private final CustomerService service;
 
@@ -64,7 +63,7 @@ public class CustomerController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CustomerResponseDto> update(
             @PathVariable Long id,
-            @RequestBody CustomerRequestDto dto,
+            @RequestBody CustomerUpdateDto dto,
             @AuthenticationPrincipal User user
     ) {
         CustomerResponseDto updated = service.update(id, dto, user);
@@ -73,8 +72,8 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponseGen> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
         service.delete(id, user);
-        return ResponseEntity.ok(new ApiResponse("Usuário deletado com sucesso!"));
+        return ResponseEntity.ok(new ApiResponseGen("Usuário deletado com sucesso!"));
     }
 }

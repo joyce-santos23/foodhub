@@ -1,9 +1,11 @@
 package br.com.foodhub.controller.user;
 
-import br.com.foodhub.dto.generic.ApiResponse;
+import br.com.foodhub.controller.api.user.OwnerApi;
+import br.com.foodhub.dto.generic.ApiResponseGen;
 import br.com.foodhub.dto.pagination.PageResponseDto;
 import br.com.foodhub.dto.user.OwnerRequestDto;
 import br.com.foodhub.dto.user.OwnerResponseDto;
+import br.com.foodhub.dto.user.OwnerUpdateDto;
 import br.com.foodhub.entities.user.User;
 import br.com.foodhub.service.user.OwnerService;
 import jakarta.validation.Valid;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/owners")
 @RequiredArgsConstructor
-public class OwnerController {
+public class OwnerController implements OwnerApi {
 
     private final OwnerService service;
 
@@ -45,7 +47,7 @@ public class OwnerController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public  ResponseEntity<OwnerResponseDto> getAuthenticatorOwner(@AuthenticationPrincipal User user) {
+    public  ResponseEntity<OwnerResponseDto> getAuthenticatedOwner(@AuthenticationPrincipal User user) {
         OwnerResponseDto owner = service.findById(user.getId());
         return ResponseEntity.ok(owner);
     }
@@ -62,7 +64,7 @@ public class OwnerController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OwnerResponseDto> update(
             @PathVariable Long id,
-            @RequestBody OwnerRequestDto dto,
+            @RequestBody OwnerUpdateDto dto,
             @AuthenticationPrincipal User user
     ) {
         OwnerResponseDto updated = service.update(id, dto, user);
@@ -71,8 +73,8 @@ public class OwnerController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponseGen> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
         service.delete(id, user);
-        return ResponseEntity.ok(new ApiResponse("Usuário deletado com sucesso!"));
+        return ResponseEntity.ok(new ApiResponseGen("Usuário deletado com sucesso!"));
     }
 }

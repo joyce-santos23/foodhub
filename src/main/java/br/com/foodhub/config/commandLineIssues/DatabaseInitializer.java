@@ -1,4 +1,4 @@
-package br.com.foodhub.config;
+package br.com.foodhub.config.commandLineIssues;
 
 import br.com.foodhub.entities.user.Customer;
 import br.com.foodhub.entities.user.Owner;

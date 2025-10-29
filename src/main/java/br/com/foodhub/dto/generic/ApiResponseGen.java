@@ -1,15 +1,15 @@
 package br.com.foodhub.dto.generic;
 
-public record ApiResponse<T>(
+public record ApiResponseGen<T>(
         boolean success,
         String message,
         T data
 ) {
 
-    public ApiResponse(String message) {
+    public ApiResponseGen(String message) {
         this(false, message, null);
     }
-    public ApiResponse(boolean success, String message) {
+    public ApiResponseGen(boolean success, String message) {
         this(success, message, null);
     }
 }

@@ -1,10 +1,12 @@
 package br.com.foodhub.controller.auth;
 
+import br.com.foodhub.controller.api.auth.AuthApi;
+import br.com.foodhub.controller.api.user.OwnerApi;
 import br.com.foodhub.dto.auth.ChangePasswordRequestDto;
 import br.com.foodhub.dto.auth.LoginRequestDto;
 import br.com.foodhub.dto.auth.LoginResponseDto;
 import br.com.foodhub.dto.auth.PasswordResetAdminDto;
-import br.com.foodhub.dto.generic.ApiResponse;
+import br.com.foodhub.dto.generic.ApiResponseGen;
 import br.com.foodhub.entities.user.User;
 import br.com.foodhub.service.auth.TokenService;
 import br.com.foodhub.service.auth.UserSecurityService;
@@ -23,7 +25,7 @@ import javax.naming.AuthenticationException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
-public class AuthController {
+public class AuthController implements AuthApi {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
@@ -46,7 +48,7 @@ public class AuthController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<ApiResponse> changePassword(
+    public ResponseEntity<ApiResponseGen> changePassword(
             @RequestBody ChangePasswordRequestDto dto,
             @AuthenticationPrincipal User user
             ) throws AuthenticationException {
@@ -54,17 +56,17 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
         userSecurityService.changePassword(user, dto.currentPassword(), dto.newPassword());
-        return ResponseEntity.ok(new ApiResponse("Senha alterada com sucesso!"));
+        return ResponseEntity.ok(new ApiResponseGen("Senha alterada com sucesso!"));
     }
 
     @PutMapping("{id}/password-reset")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ApiResponse> resetPasswordByAdmin(
+    public ResponseEntity<ApiResponseGen> resetPasswordByAdmin(
             @PathVariable Long id,
             @RequestBody @Valid PasswordResetAdminDto dto
             ) {
         userSecurityService.resetPassword(id, dto.newPassword());
-        return ResponseEntity.ok(new ApiResponse("Senha alterada com sucesso!"));
+        return ResponseEntity.ok(new ApiResponseGen("Senha alterada com sucesso!"));
     }
 
 }

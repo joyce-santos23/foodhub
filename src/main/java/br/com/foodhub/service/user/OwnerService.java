@@ -3,6 +3,7 @@ package br.com.foodhub.service.user;
 import br.com.foodhub.dto.pagination.PageResponseDto;
 import br.com.foodhub.dto.user.OwnerRequestDto;
 import br.com.foodhub.dto.user.OwnerResponseDto;
+import br.com.foodhub.dto.user.OwnerUpdateDto;
 import br.com.foodhub.entities.user.Owner;
 import br.com.foodhub.entities.user.User;
 import br.com.foodhub.entities.user.UserRole;
@@ -57,7 +58,7 @@ public class OwnerService {
         repository.delete(owner);
     }
 
-    public OwnerResponseDto update(Long id, OwnerRequestDto dto, User user) {
+    public OwnerResponseDto update(Long id, OwnerUpdateDto dto, User user) {
         Owner owner = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + id + " não foi encontrado!"));
 
@@ -78,10 +79,15 @@ public class OwnerService {
             owner.setPhone(dto.phone());
         }
 
-        if (dto.cnpj() != null && !dto.cnpj().equals(owner.getCnpj())) {
-            checkUniqueCnpj(dto.cnpj());
-            owner.setCnpj(dto.cnpj());
+        if (dto.cnpj() != null) {
+            if (owner.getCnpj() == null) {
+                checkUniqueCnpj(dto.cnpj());
+                owner.setCnpj(dto.cnpj());
+            } else if (!dto.cnpj().equals(owner.getCnpj())) {
+                throw new ResourceConflictException("CNPJ não pode ser alterado uma vez cadastrado!");
+            }
         }
+
 
         Owner updated = repository.save(owner);
         if (emailChanged) {

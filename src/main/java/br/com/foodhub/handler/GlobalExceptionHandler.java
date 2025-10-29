@@ -1,6 +1,6 @@
 package br.com.foodhub.handler;
 
-import br.com.foodhub.dto.generic.ApiResponse;
+import br.com.foodhub.dto.generic.ApiResponseGen;
 import br.com.foodhub.exception.MustReauthenticateException;
 import br.com.foodhub.exception.ResourceConflictException;
 import br.com.foodhub.exception.ResourceNotFoundException;
@@ -102,11 +102,11 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MustReauthenticateException.class)
-    public ResponseEntity<ApiResponse<?>> handleReauthenticationRequired(MustReauthenticateException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponseGen<?>> handleReauthenticationRequired(MustReauthenticateException ex, HttpServletRequest request) {
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(new ApiResponse<>(
+                .body(new ApiResponseGen<>(
                         true,
                         ex.getMessage(),
                         null
