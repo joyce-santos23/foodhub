@@ -5,13 +5,11 @@ import br.com.foodhub.dto.user.CustomerRequestDto;
 import br.com.foodhub.dto.user.CustomerResponseDto;
 import br.com.foodhub.dto.user.CustomerUpdateDto;
 import br.com.foodhub.entities.user.Customer;
-import br.com.foodhub.entities.user.Owner;
 import br.com.foodhub.entities.user.User;
 import br.com.foodhub.entities.user.UserRole;
 import br.com.foodhub.exception.MustReauthenticateException;
 import br.com.foodhub.exception.ResourceConflictException;
 import br.com.foodhub.exception.ResourceNotFoundException;
-import br.com.foodhub.exception.ResourceOwnershipException;
 import br.com.foodhub.mapper.user.CustomerMapper;
 import br.com.foodhub.repository.user.CustomerRepository;
 import br.com.foodhub.service.pagination.PaginationService;
@@ -19,10 +17,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -33,6 +27,19 @@ public class CustomerService {
 
     public PageResponseDto<CustomerResponseDto> findAllPaginated(int page, int size, String sortBy, boolean asc){
         return PaginationService.paginate(repository, page - 1, size, sortBy, asc, mapper::toResponse);
+    }
+
+    public PageResponseDto<CustomerResponseDto> findByNamePaginated(
+            String name, int page, int size, String sortBy, boolean asc
+    ) {
+        return PaginationService.paginateWithSearch(
+                pageable -> repository.findByNameContainingIgnoreCase(name, pageable),
+                page - 1,
+                size,
+                sortBy,
+                asc,
+                mapper::toResponse
+        );
     }
 
     public CustomerResponseDto findById(Long id) {

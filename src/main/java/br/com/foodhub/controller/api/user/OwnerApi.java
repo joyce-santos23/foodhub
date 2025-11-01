@@ -2,6 +2,7 @@ package br.com.foodhub.controller.api.user;
 
 import br.com.foodhub.dto.generic.ApiResponseGen;
 import br.com.foodhub.dto.pagination.PageResponseDto;
+import br.com.foodhub.dto.user.CustomerResponseDto;
 import br.com.foodhub.dto.user.OwnerRequestDto;
 import br.com.foodhub.dto.user.OwnerResponseDto;
 import br.com.foodhub.dto.user.OwnerUpdateDto;
@@ -37,8 +38,10 @@ public interface OwnerApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso.",
                     content = @Content(schema = @Schema(implementation = PageResponseDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido."),
-            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.")
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.",
+                    content = @Content)
     })
     @GetMapping
     ResponseEntity<PageResponseDto<OwnerResponseDto>> findAll(
@@ -68,6 +71,32 @@ public interface OwnerApi {
     })
     @GetMapping("/{id}")
     ResponseEntity<OwnerResponseDto> findByid(@PathVariable Long id);
+
+    // =================================================================
+    // GET BY NAME (ADMIN)
+    // =================================================================
+    @Operation(
+            summary = "Buscar Clientes por Nome (ADMIN)",
+            description = "Retorna uma lista paginada de clientes cujo nome contenha o termo de busca.",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso.",
+                    content = @Content(schema = @Schema(implementation = PageResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.",
+                    content = @Content)
+    })
+    @GetMapping("/search")
+    ResponseEntity<PageResponseDto<OwnerResponseDto>> findByName(
+            @Parameter(description = "Nome ou parte do nome a ser buscado.")
+            @RequestParam String name,
+            @Parameter(description = "Número da página (inicia em 1)") @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "Tamanho da página") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Campo para ordenação") @RequestParam(defaultValue = "id") String sortBy,
+            @Parameter(description = "Direção da ordenação (asc/desc)") @RequestParam(defaultValue = "asc") String direction
+    );
 
     // =================================================================
     // GET ME (AUTENTICADO)
