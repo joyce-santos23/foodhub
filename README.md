@@ -1,10 +1,10 @@
 # 🍔 FoodHub Backend API
 
-O FoodHub é uma API de gerenciamento de usuários e endereços para estabelecimentos desenvolvida em Spring Boot 3.3.x (Java 21), utilizando PostgreSQL e Docker Compose. O projeto implementa autenticação JWT (JSON Web Token) e controle de acesso baseado em Papéis (RBAC) para garantir a segurança dos recursos.
+O FoodHub é uma API de gerenciamento de usuários e endereços para estabelecimentos desenvolvida em Spring Boot 3.3.5 (Java 21), utilizando PostgreSQL e Docker Compose. O projeto implementa autenticação JWT (JSON Web Token) e controle de acesso baseado em Papéis (RBAC) para garantir a segurança dos recursos.
 
 ## 🔑 Arquitetura e Segurança
 
-* Framework: Spring Boot 3.3.x
+* Framework: Spring Boot 3.3.5
 
 * Banco de Dados: PostgreSQL 15
 
@@ -28,7 +28,8 @@ Este projeto utiliza o Docker Compose para criar e orquestrar a aplicação Spri
 
 ### 1. Build e Execução
 
-Utilize o Docker Compose para construir a imagem e iniciar os containers de forma limpa:
+- Configure o arquive .env com as credenciais para construir o banco e gerar a chave de token usando o formato Base64 (olhar arquivo .env de exemplo).
+- Utilize o Docker Compose para construir a imagem e iniciar os containers de forma limpa:
 
 ### Para garantir que todas as dependências e o código corrigido sejam compilados
 ```docker-compose up -d --build```
@@ -58,24 +59,26 @@ A documentação interativa (Swagger UI) está acessível diretamente no navegad
 | PUT    | `/auth/{id}/password-reset` | Reset de senha de outro usuário       | ADMIN       |
 
 ## Customers
-| Método | Endpoint          | Descrição                            | Permissão   |
-| ------ | ----------------- | ------------------------------------ | ----------- |
-| GET    | `/customers`      | Listar todos os clientes (paginação) | ADMIN       |
-| GET    | `/customers/{id}` | Consultar cliente por ID             | ADMIN       |
-| GET    | `/customers/me`   | Consultar perfil do usuário logado   | Autenticado |
-| POST   | `/customers`      | Criar novo cliente                   | Público     |
-| PUT    | `/customers/{id}` | Atualizar cliente                    | Autenticado |
-| DELETE | `/customers/{id}` | Deletar cliente                      | Autenticado |
+| Método | Endpoint           | Descrição                            | Permissão   |
+| ------ | -----------------  | ------------------------------------ | ----------- |
+| GET    | `/customers`       | Listar todos os clientes (paginação) | ADMIN       |
+| GET    | `/customers/{id}`  | Consultar cliente por ID             | ADMIN       |
+| GET    | `/customers/search`| Consultar cliente pelo nome          | ADMIN       |
+| GET    | `/customers/me`    | Consultar perfil do usuário logado   | Autenticado |
+| POST   | `/customers`       | Criar novo cliente                   | Público     |
+| PUT    | `/customers/{id}`  | Atualizar cliente                    | Autenticado |
+| DELETE | `/customers/{id}`  | Deletar cliente                      | Autenticado |
 
 ## Owners
-| Método | Endpoint       | Descrição                          | Permissão   |
-| ------ | -------------- | ---------------------------------- | ----------- |
-| GET    | `/owners`      | Listar todos os owners (paginação) | ADMIN       |
-| GET    | `/owners/{id}` | Consultar owner por ID             | ADMIN       |
-| GET    | `/owners/me`   | Consultar perfil do owner logado   | Autenticado |
-| POST   | `/owners`      | Criar novo owner                   | Público     |
-| PUT    | `/owners/{id}` | Atualizar owner                    | Autenticado |
-| DELETE | `/owners/{id}` | Deletar owner                      | Autenticado |
+| Método | Endpoint           | Descrição                                 | Permissão   |
+| ------ | -------------------| ----------------------------------------- | ----------- |
+| GET    | `/owners`          | Listar todos os proprietários (paginação) | ADMIN       |
+| GET    | `/owners/{id}`     | Consultar proprietário por ID             | ADMIN       |
+| GET    | `/customers/search`| Consultar proprietário pelo nome          | ADMIN       |
+| GET    | `/owners/me`       | Consultar perfil do proprietário logado   | Autenticado |
+| POST   | `/owners`          | Criar novo proprietário                   | Público     |
+| PUT    | `/owners/{id}`     | Atualizar proprietário                    | Autenticado |
+| DELETE | `/owners/{id}`     | Deletar proprietário                      | Autenticado |
 
 ## User Address
 | Método | Endpoint                        | Descrição                     | Permissão   |
