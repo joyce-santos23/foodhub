@@ -37,6 +37,22 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok(OwnersPage);
     }
 
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<PageResponseDto<OwnerResponseDto>> findByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        boolean asc = !"desc".equalsIgnoreCase(direction);
+
+        PageResponseDto<OwnerResponseDto> ownersPage = service.findByNamePaginated(
+                name, page, size, sortBy, asc
+        );
+        return ResponseEntity.ok(ownersPage);
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")

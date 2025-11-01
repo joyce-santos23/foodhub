@@ -35,9 +35,12 @@ public interface CustomerApi {
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso."),
-            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido."),
-            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.")
+            @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso.",
+                    content = @Content(schema = @Schema(implementation = CustomerResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.",
+                    content = @Content)
     })
     @GetMapping
     ResponseEntity<PageResponseDto<CustomerResponseDto>> findAll(
@@ -56,13 +59,43 @@ public interface CustomerApi {
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso."),
-            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido."),
-            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN."),
-            @ApiResponse(responseCode = "404", description = "Cliente não encontrado.")
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso.",
+                    content = @Content(schema = @Schema(implementation = CustomerResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado.",
+                    content = @Content)
     })
     @GetMapping("/{id}")
     ResponseEntity<CustomerResponseDto> findByid(@PathVariable Long id);
+
+    // =================================================================
+    // GET BY NAME (ADMIN) - NOVO MÉTODO
+    // =================================================================
+    @Operation(
+            summary = "Buscar Clientes por Nome (ADMIN)",
+            description = "Retorna uma lista paginada de clientes cujo nome contenha o termo de busca.",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta realizada com sucesso.",
+                    content = @Content(schema = @Schema(implementation = PageResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Permissão negada. Requer papel ADMIN.",
+                    content = @Content)
+    })
+    @GetMapping("/search")
+    ResponseEntity<PageResponseDto<CustomerResponseDto>> findByName(
+            @Parameter(description = "Nome ou parte do nome a ser buscado.")
+            @RequestParam String name,
+            @Parameter(description = "Número da página (inicia em 1)") @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "Tamanho da página") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Campo para ordenação") @RequestParam(defaultValue = "id") String sortBy,
+            @Parameter(description = "Direção da ordenação (asc/desc)") @RequestParam(defaultValue = "asc") String direction
+    );
 
     // =================================================================
     // GET ME (AUTENTICADO)
@@ -89,7 +122,8 @@ public interface CustomerApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso."),
-            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos ou CPF/Email/Telefone já em uso.")
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos ou CPF/Email/Telefone já em uso.",
+                    content = @Content)
     })
     @PostMapping
     ResponseEntity<CustomerResponseDto> create(@Valid @RequestBody CustomerRequestDto dto);
@@ -104,8 +138,10 @@ public interface CustomerApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Atualização realizada com sucesso."),
-            @ApiResponse(responseCode = "403", description = "Acesso negado. O recurso não pertence ao usuário."),
-            @ApiResponse(responseCode = "404", description = "Cliente não encontrado.")
+            @ApiResponse(responseCode = "403", description = "Acesso negado. O recurso não pertence ao usuário.",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado.",
+                    content = @Content)
     })
     @PutMapping("/{id}")
     ResponseEntity<CustomerResponseDto> update(

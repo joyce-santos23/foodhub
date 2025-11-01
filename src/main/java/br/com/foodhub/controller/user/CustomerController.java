@@ -37,6 +37,24 @@ public class CustomerController implements CustomerApi {
         return ResponseEntity.ok(customersPage);
     }
 
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<PageResponseDto<CustomerResponseDto>> findByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        boolean asc = !"desc".equalsIgnoreCase(direction);
+
+        // 🚨 Chama a Service para a busca por nome
+        PageResponseDto<CustomerResponseDto> ownersPage = service.findByNamePaginated(
+                name, page, size, sortBy, asc
+        );
+        return ResponseEntity.ok(ownersPage);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CustomerResponseDto> findByid(@PathVariable Long id) {

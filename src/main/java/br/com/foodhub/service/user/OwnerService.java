@@ -29,6 +29,19 @@ public class OwnerService {
         return PaginationService.paginate(repository, page - 1, size, sortBy, asc, mapper::toResponse);
     }
 
+    public PageResponseDto<OwnerResponseDto> findByNamePaginated(
+            String name, int page, int size, String sortBy, boolean asc
+    ) {
+        return PaginationService.paginateWithSearch(
+                pageable -> repository.findByNameContainingIgnoreCase(name, pageable),
+                page - 1,
+                size,
+                sortBy,
+                asc,
+                mapper::toResponse
+        );
+    }
+
     public OwnerResponseDto findById(Long id) {
         Owner owner = repository.findById(id)
                 .orElseThrow(() -> new ResourceConflictException("Usuário com ID " + id + " não foi encontrado!"));
