@@ -5,7 +5,7 @@ import br.com.foodhub.application.dto.auth.LoginRequestDto;
 import br.com.foodhub.application.dto.auth.LoginResponseDto;
 import br.com.foodhub.application.dto.auth.PasswordResetAdminDto;
 import br.com.foodhub.application.dto.generic.ApiResponseGen;
-import br.com.foodhub.domain.entities.user.User; // 🚨 IMPORT NECESSÁRIO
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -51,7 +51,7 @@ public interface AuthApi {
     @Operation(
             summary = "Alteração de Senha Própria",
             description = "Permite que o usuário autenticado altere sua própria senha, validando a senha atual.",
-            security = @SecurityRequirement(name = "BearerAuth") // Exige o Token JWT
+            security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Senha alterada com sucesso."),
@@ -66,7 +66,7 @@ public interface AuthApi {
     ResponseEntity<ApiResponseGen> changePassword(
             @RequestBody ChangePasswordRequestDto dto,
             @Parameter(hidden = true)
-            User user
+            UserPrincipal principal
     ) throws AuthenticationException;
 
     // =================================================================

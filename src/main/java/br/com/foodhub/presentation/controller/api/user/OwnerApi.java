@@ -5,7 +5,7 @@ import br.com.foodhub.application.dto.pagination.PageResponseDto;
 import br.com.foodhub.application.dto.user.OwnerRequestDto;
 import br.com.foodhub.application.dto.user.OwnerResponseDto;
 import br.com.foodhub.application.dto.user.OwnerUpdateDto;
-import br.com.foodhub.domain.entities.user.User; // 🚨 IMPORT NECESSÁRIO
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -106,12 +106,14 @@ public interface OwnerApi {
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil encontrado.")
+            @ApiResponse(responseCode = "200", description = "Perfil encontrado."),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content)
     })
     @GetMapping("/me")
     ResponseEntity<OwnerResponseDto> getAuthenticatedOwner(
-            @Parameter(hidden = true) User user
-    );
+            @Parameter(hidden = true) UserPrincipal principal
+            );
 
     // =================================================================
     // CREATE (PÚBLICO)
@@ -123,7 +125,7 @@ public interface OwnerApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Proprietário criado com sucesso.",
                     content = @Content(schema = @Schema(implementation = OwnerResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos ou CNPJ/Email/Telefone já em uso.",
+            @ApiResponse(responseCode = "409", description = "Dados de entrada inválidos ou CNPJ/Email/Telefone já em uso.",
                     content = @Content)
     })
     @PostMapping
@@ -140,16 +142,20 @@ public interface OwnerApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Atualização realizada com sucesso.",
                     content = @Content(schema = @Schema(implementation = OwnerResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado. O recurso não pertence ao usuário.",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Proprietário não encontrado.",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "Dados de entrada inválidos ou CNPJ/Email/Telefone já em uso.",
                     content = @Content)
     })
     @PutMapping("/{id}")
     ResponseEntity<OwnerResponseDto> update(
             @PathVariable Long id,
             @RequestBody OwnerUpdateDto dto,
-            @Parameter(hidden = true) User user
+            @Parameter(hidden = true) UserPrincipal principal
     );
 
     // =================================================================
@@ -163,6 +169,8 @@ public interface OwnerApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Proprietário deletado com sucesso.",
                     content = @Content(schema = @Schema(implementation = ApiResponseGen.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado. O recurso não pertence ao usuário.",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Proprietário não encontrado.",
@@ -171,6 +179,6 @@ public interface OwnerApi {
     @DeleteMapping("/{id}")
     ResponseEntity<ApiResponseGen> delete(
             @PathVariable Long id,
-            @Parameter(hidden = true) User user
+            @Parameter(hidden = true) UserPrincipal principal
     );
 }

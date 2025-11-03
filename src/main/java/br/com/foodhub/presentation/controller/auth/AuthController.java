@@ -1,5 +1,6 @@
 package br.com.foodhub.presentation.controller.auth;
 
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import br.com.foodhub.presentation.controller.api.auth.AuthApi;
 import br.com.foodhub.application.dto.auth.ChangePasswordRequestDto;
 import br.com.foodhub.application.dto.auth.LoginRequestDto;
@@ -34,7 +35,8 @@ public class AuthController implements AuthApi {
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.identifier(), dto.password());
         Authentication auth = this.authenticationManager.authenticate(usernamePassword);
-        User user = (User) auth.getPrincipal();
+        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
+        User user = principal.getUser();
         String jwtToken = tokenService.generateToken(user);
 
         LoginResponseDto response = new LoginResponseDto(
@@ -49,11 +51,12 @@ public class AuthController implements AuthApi {
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponseGen> changePassword(
             @RequestBody ChangePasswordRequestDto dto,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
             ) throws AuthenticationException {
-        if (user == null) {
+        if (principal == null) {
             return ResponseEntity.status(401).build();
         }
+        User user = principal.getUser();
         userSecurityService.changePassword(user, dto.currentPassword(), dto.newPassword());
         return ResponseEntity.ok(new ApiResponseGen("Senha alterada com sucesso!"));
     }

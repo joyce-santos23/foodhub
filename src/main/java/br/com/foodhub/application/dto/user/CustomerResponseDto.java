@@ -36,4 +36,20 @@ public record CustomerResponseDto(
                         phone.substring(7)
                 );
         }
+
+    public String cpf() {
+        if (cpf == null) return null;
+        String digits = cpf.replaceAll("\\D", "");
+
+        if (digits.length() != 11) {
+            return cpf;
+        }
+
+        return String.format("%s.%s.%s-%s",
+                digits.substring(0, 3),
+                digits.substring(3, 6),
+                digits.substring(6, 9),
+                digits.substring(9)
+        );
+    }
 }

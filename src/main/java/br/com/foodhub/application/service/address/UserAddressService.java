@@ -7,6 +7,7 @@ import br.com.foodhub.domain.entities.address.AddressBase;
 import br.com.foodhub.domain.entities.user.User;
 import br.com.foodhub.domain.entities.address.UserAddress;
 import br.com.foodhub.domain.entities.user.UserRole;
+import br.com.foodhub.domain.exception.InvalidDataException;
 import br.com.foodhub.domain.exception.ResourceNotFoundException;
 import br.com.foodhub.domain.exception.ResourceOwnershipException;
 import br.com.foodhub.domain.mapper.address.UserAddressMapper;
@@ -15,6 +16,7 @@ import br.com.foodhub.infrastructure.repository.user.UserAddressRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 
@@ -49,13 +51,14 @@ public class UserAddressService {
             String number,
             String complement,
             boolean prymaryAddress) {
+        String normalizedCep = normalizeCep(cep);
         checkAuthorization(targetUserId, authenticatedUser);
 
         User targetUser = targetUserId.equals(authenticatedUser.getId())
                 ? authenticatedUser
                 : findTargetUser(targetUserId);
 
-        AddressBase addressBase = addressBaseService.findOrCreateByCep(cep);
+        AddressBase addressBase = addressBaseService.findOrCreateByCep(normalizedCep);
 
         if (prymaryAddress) {
             repository.unsetPrimaryAddresses(targetUser);
@@ -123,5 +126,19 @@ public class UserAddressService {
     private User findTargetUser(Long userId) {
         return baseUserRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário alvo com ID " + userId + " não encontrado!"));
+    }
+
+    private String normalizeCep(String cep) {
+        if (cep == null || cep.isBlank()) {
+            throw new IllegalArgumentException("CEP não pode ser nulo ou vazio.");
+        }
+
+        String normalizedCep = cep.replaceAll("\\D", "");
+
+        if (normalizedCep.length() != 8) {
+            throw new InvalidDataException("CEP inválido. Deve conter 8 dígitos.");
+        }
+
+        return normalizedCep;
     }
 }

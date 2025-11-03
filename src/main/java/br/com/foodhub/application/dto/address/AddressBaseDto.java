@@ -7,5 +7,12 @@ public record AddressBaseDto(
         String city,
         String state,
         String country
-) {}
+) {
+    public String cep() {
+        return String.format("%s-%s",
+                cep.substring(0, 5),
+                cep.substring(5)
+        );
+    }
+}
 

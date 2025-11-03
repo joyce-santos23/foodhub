@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record LoginRequestDto(
         @NotBlank(message = "O identificador (e-mail ou telefone) é obrigatório.")
-        @Schema(description = "E-mail ou telefone do usuário", example = "usuario@email.com")
+        @Schema(description = "E-mail ou telefone do usuário", example = "usuario@email.com/11987654322")
         String identifier,
 
         @NotBlank(message = "A senha é obrigatória.")

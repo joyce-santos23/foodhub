@@ -7,6 +7,7 @@ import br.com.foodhub.application.dto.user.OwnerUpdateDto;
 import br.com.foodhub.domain.entities.user.Owner;
 import br.com.foodhub.domain.entities.user.User;
 import br.com.foodhub.domain.entities.user.UserRole;
+import br.com.foodhub.domain.exception.InvalidDataException;
 import br.com.foodhub.domain.exception.MustReauthenticateException;
 import br.com.foodhub.domain.exception.ResourceConflictException;
 import br.com.foodhub.domain.exception.ResourceNotFoundException;
@@ -48,13 +49,17 @@ public class OwnerService {
     }
 
     public OwnerResponseDto save(OwnerRequestDto dto) {
-        checkUniqueEmail(dto.email());
-        checkUniquePhone(normalizePhone(dto.phone()));
-        if(dto.cnpj() != null) {
-            checkUniqueCnpj(dto.cnpj());
-        }
+        String normalizedPhone = normalizePhone(dto.phone());
+        String normalizedCnpj = normalizeCnpj(dto.cnpj());
 
+        checkUniqueEmail(dto.email());
+        checkUniquePhone(normalizedPhone);
+        if(dto.cnpj() != null) {
+            checkUniqueCnpj(normalizedCnpj);
+        }
         Owner owner = mapper.toEntity(dto);
+        owner.setPhone(normalizedPhone);
+        owner.setCnpj(normalizedCnpj);
         String encriptedPassword = passwordEncoder.encode(dto.password());
         owner.setPassword(encriptedPassword);
         owner.setRole(UserRole.OWNER);
@@ -86,16 +91,20 @@ public class OwnerService {
             emailChanged = true;
         }
 
-        if (dto.phone() != null && !owner.getPhone().equals(dto.phone())) {
-            checkUniquePhone(dto.phone());
-            owner.setPhone(dto.phone());
+        if (dto.phone() != null) {
+            String updatedPhone = normalizePhone(dto.phone());
+            if (!owner.getPhone().equals(updatedPhone)) {
+                checkUniquePhone(updatedPhone);
+                owner.setPhone(updatedPhone);
+            }
         }
 
         if (dto.cnpj() != null) {
+            String updatedCnpj = normalizeCnpj(dto.cnpj());
             if (owner.getCnpj() == null) {
-                checkUniqueCnpj(dto.cnpj());
-                owner.setCnpj(dto.cnpj());
-            } else if (!dto.cnpj().equals(owner.getCnpj())) {
+                checkUniqueCnpj(updatedCnpj);
+                owner.setCnpj(updatedCnpj);
+            } else if (!updatedCnpj.equals(owner.getCnpj())) {
                 throw new ResourceConflictException("CNPJ não pode ser alterado uma vez cadastrado!");
             }
         }
@@ -140,8 +149,28 @@ public class OwnerService {
     }
 
     private String normalizePhone(String phone) {
-        if (phone == null) return null;
-        return phone.replaceAll("\\D", "");
+        if (phone == null || phone.isBlank()) {
+            return null;
+        }
+        String normalizedPhone = phone.replaceAll("\\D", "");
+        int length = normalizedPhone.length();
+        if (length != 10 && length != 11) {
+            throw new InvalidDataException("Telefone inválido. Deve conter 10 ou 11 dígitos (incluindo o DDD).");
+        }
+
+        return normalizedPhone;
+    }
+
+    private String normalizeCnpj(String cnpj) {
+        if (cnpj == null || cnpj.isBlank()) {
+            return null;
+        }
+        String normalizedCnpj = cnpj.replaceAll("\\D", "");
+        if (normalizedCnpj.length() != 14) {
+            throw new InvalidDataException("CNPJ inválido. Deve conter exatamente 14 dígitos.");
+        }
+
+        return normalizedCnpj;
     }
 
 }

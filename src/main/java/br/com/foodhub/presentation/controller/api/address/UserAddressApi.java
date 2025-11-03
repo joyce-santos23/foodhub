@@ -3,7 +3,7 @@ package br.com.foodhub.presentation.controller.api.address;
 import br.com.foodhub.application.dto.address.UserAddressRequestDto;
 import br.com.foodhub.application.dto.address.UserAddressResponseDto;
 import br.com.foodhub.application.dto.generic.ApiResponseGen;
-import br.com.foodhub.domain.entities.user.User;
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,8 +47,8 @@ public interface UserAddressApi {
             @PathVariable("userId")
             @Parameter(description = "ID do usuário (dono) alvo dos endereços.")
             Long userId,
-            @Parameter(hidden = true) User user
-    );
+            @Parameter(hidden = true) UserPrincipal principal
+            );
 
     // =================================================================
     // POST (Criar novo endereço para o usuário {userId})
@@ -62,14 +62,18 @@ public interface UserAddressApi {
             @ApiResponse(responseCode = "201", description = "Endereço criado e associado."),
             @ApiResponse(responseCode = "400", description = "Dados de endereço inválidos.",
                     content = @Content),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado (Tentativa de criar endereço para outro usuário).",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Cep não encontrado.",
                     content = @Content)
     })
     @PostMapping
     ResponseEntity<UserAddressResponseDto> createAddress(
             @PathVariable("userId") Long userId,
             @RequestBody @Valid UserAddressRequestDto dto,
-            @Parameter(hidden = true) User user // 🚨 CORRIGIDO: Tipo User
+            @Parameter(hidden = true) UserPrincipal principal
     );
 
     // =================================================================
@@ -82,6 +86,10 @@ public interface UserAddressApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereço atualizado com sucesso."),
+            @ApiResponse(responseCode = "400", description = "Dados de endereço inválidos.",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado (Não é o dono ou Admin, ou o endereço não pertence ao {userId}).",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Endereço não encontrado.",
@@ -92,7 +100,7 @@ public interface UserAddressApi {
             @PathVariable("userId") Long userId,
             @PathVariable("addressId") Long addressId,
             @RequestBody UserAddressRequestDto dto,
-            @Parameter(hidden = true) User user
+            @Parameter(hidden = true) UserPrincipal principal
     );
 
     // =================================================================
@@ -105,6 +113,8 @@ public interface UserAddressApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereço deletado com sucesso."),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado (Não é o dono, Admin, ou o endereço não pertence ao {userId}).",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Endereço não encontrado.",
@@ -114,6 +124,6 @@ public interface UserAddressApi {
     ResponseEntity<ApiResponseGen> deleteAddress(
             @PathVariable("userId") Long userId,
             @PathVariable("addressId") Long addressId,
-            @Parameter(hidden = true) User user
+            @Parameter(hidden = true) UserPrincipal principal
     );
 }

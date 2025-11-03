@@ -1,5 +1,6 @@
 package br.com.foodhub.application.service.auth;
 
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import br.com.foodhub.domain.entities.user.User;
 import br.com.foodhub.infrastructure.repository.user.CustomerRepository;
 import br.com.foodhub.infrastructure.repository.user.OwnerRepository;
@@ -28,8 +29,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         userOptional = userOptional.or(() -> customerRepository.findByPhone(identifier).map(user -> (User) user));
 
 
-        return userOptional.orElseThrow(() ->
+        User user= userOptional.orElseThrow(() ->
                 new UsernameNotFoundException("Credencial " + identifier + " não encontrada.")
         );
+
+        return new UserPrincipal(user);
     }
 }

@@ -41,12 +41,13 @@ public class DatabaseInitializer {
 
     private void createAdmin(String encryptedPassword) {
         if (ownerRepository.findByEmail("admin@foodhub.com").isEmpty()) {
-            Owner admin = Owner.builder() // Assumindo que o Admin herda de Owner
+            Owner admin = Owner.builder()
                     .name("Administrador FoodHub")
                     .email("admin@foodhub.com")
                     .password(encryptedPassword)
                     .phone("99999999999")
-                    .role(UserRole.ADMIN) // 🚨 O papel mais importante
+                    .businessName("FoodHub HQ - Administrativo")
+                    .role(UserRole.ADMIN)
                     .build();
             ownerRepository.save(admin);
             System.out.println(">>> Usuário Admin inicial criado.");
@@ -75,6 +76,7 @@ public class DatabaseInitializer {
                     .email("owner.test@foodhub.com")
                     .password(encryptedPassword)
                     .phone("21912345678")
+                    .businessName("Restaurante de Teste LTDA")
                     .role(UserRole.OWNER)
                     .build();
             ownerRepository.save(owner1);

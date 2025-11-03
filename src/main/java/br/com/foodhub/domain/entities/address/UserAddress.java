@@ -19,14 +19,19 @@ import lombok.experimental.SuperBuilder;
 public class UserAddress extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "address_id")
+    @JoinColumn(name = "address_id", nullable = false)
     private AddressBase address;
+
+    @Column(length = 100)
     private String complement;
+
+    @Column(name = "number_street", length = 20, nullable = false)
     private String numberStreet;
-    @Column(name = "primary_address", nullable = true)
+
+    @Column(name = "primary_address", nullable = false)
     private boolean primaryAddress;
 }
