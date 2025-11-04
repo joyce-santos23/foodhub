@@ -91,7 +91,7 @@ public class OwnerService {
             emailChanged = true;
         }
 
-        if (dto.phone() != null) {
+        if (dto.phone() != null && !dto.phone().isBlank()) {
             String updatedPhone = normalizePhone(dto.phone());
             if (!owner.getPhone().equals(updatedPhone)) {
                 checkUniquePhone(updatedPhone);
@@ -99,7 +99,7 @@ public class OwnerService {
             }
         }
 
-        if (dto.cnpj() != null) {
+        if (dto.cnpj() != null && !dto.cnpj().isBlank()) {
             String updatedCnpj = normalizeCnpj(dto.cnpj());
             if (owner.getCnpj() == null) {
                 checkUniqueCnpj(updatedCnpj);

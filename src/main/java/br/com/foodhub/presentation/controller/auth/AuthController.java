@@ -50,7 +50,7 @@ public class AuthController implements AuthApi {
 
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponseGen> changePassword(
-            @RequestBody ChangePasswordRequestDto dto,
+            @RequestBody @Valid ChangePasswordRequestDto dto,
             @AuthenticationPrincipal UserPrincipal principal
             ) throws AuthenticationException {
         if (principal == null) {

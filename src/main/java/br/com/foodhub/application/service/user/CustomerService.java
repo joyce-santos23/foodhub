@@ -94,7 +94,7 @@ public class CustomerService {
             emailChanged = true;
         }
 
-        if (dto.phone() != null) {
+        if (dto.phone() != null && !dto.phone().isBlank()) {
             String updatedPhone = normalizePhone(dto.phone());
             if (!customer.getPhone().equals(updatedPhone)) {
                 checkUniquePhone(updatedPhone);
@@ -102,7 +102,7 @@ public class CustomerService {
             }
         }
 
-        if (dto.cpf() != null) {
+        if (dto.cpf() != null && !dto.cpf().isBlank()) {
             String updatedCpf = normalizeCpf(dto.cpf());
             if (customer.getCpf() == null) {
                 checkUniqueCpf(updatedCpf);

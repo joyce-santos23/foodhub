@@ -29,7 +29,7 @@ public abstract class User extends BaseEntity {
     @Column(length = 255, nullable = false)
     private String password;
 
-    @Column(length = 20)
+    @Column(length = 20, nullable = false)
     private String phone;
 
     @Enumerated(EnumType.STRING)
