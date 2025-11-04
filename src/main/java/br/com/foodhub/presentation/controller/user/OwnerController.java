@@ -1,5 +1,6 @@
 package br.com.foodhub.presentation.controller.user;
 
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import br.com.foodhub.presentation.controller.api.user.OwnerApi;
 import br.com.foodhub.application.dto.generic.ApiResponseGen;
 import br.com.foodhub.application.dto.pagination.PageResponseDto;
@@ -63,7 +64,8 @@ public class OwnerController implements OwnerApi {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public  ResponseEntity<OwnerResponseDto> getAuthenticatedOwner(@AuthenticationPrincipal User user) {
+    public  ResponseEntity<OwnerResponseDto> getAuthenticatedOwner(@AuthenticationPrincipal UserPrincipal principal) {
+        User user = principal.getUser();
         OwnerResponseDto owner = service.findById(user.getId());
         return ResponseEntity.ok(owner);
     }
@@ -81,15 +83,17 @@ public class OwnerController implements OwnerApi {
     public ResponseEntity<OwnerResponseDto> update(
             @PathVariable Long id,
             @RequestBody OwnerUpdateDto dto,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
+        User user = principal.getUser();
         OwnerResponseDto updated = service.update(id, dto, user);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponseGen> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponseGen> delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+        User user = principal.getUser();
         service.delete(id, user);
         return ResponseEntity.ok(new ApiResponseGen("Usuário deletado com sucesso!"));
     }

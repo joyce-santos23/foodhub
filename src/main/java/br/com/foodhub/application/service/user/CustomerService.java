@@ -7,6 +7,7 @@ import br.com.foodhub.application.dto.user.CustomerUpdateDto;
 import br.com.foodhub.domain.entities.user.Customer;
 import br.com.foodhub.domain.entities.user.User;
 import br.com.foodhub.domain.entities.user.UserRole;
+import br.com.foodhub.domain.exception.InvalidDataException;
 import br.com.foodhub.domain.exception.MustReauthenticateException;
 import br.com.foodhub.domain.exception.ResourceConflictException;
 import br.com.foodhub.domain.exception.ResourceNotFoundException;
@@ -49,13 +50,21 @@ public class CustomerService {
     }
     @Transactional
     public CustomerResponseDto save(CustomerRequestDto dto) {
+        String normalizedPhone = normalizePhone(dto.phone());
+        String normalizedCpf = normalizeCpf(dto.cpf());
+
         checkUniqueEmail(dto.email());
-        checkUniquePhone(normalizePhone(dto.phone()));
-        if(dto.cpf() != null) {
-            checkUniqueCpf(dto.cpf());
+        checkUniquePhone(normalizedPhone);
+        if(normalizedCpf != null) {
+            if (normalizedCpf.length() != 11) {
+                throw new ResourceConflictException("CPF deve conter exatamente 11 dígitos.");
+            }
+            checkUniqueCpf(normalizedCpf);
         }
 
         Customer customer = mapper.toEntity(dto);
+        customer.setPhone(normalizedPhone);
+        customer.setCpf(normalizedCpf);
         String encriptedPassword = passwordEncoder.encode(dto.password());
         customer.setPassword(encriptedPassword);
         customer.setRole(UserRole.CUSTOMER);
@@ -85,16 +94,20 @@ public class CustomerService {
             emailChanged = true;
         }
 
-        if (dto.phone() != null && !customer.getPhone().equals(dto.phone())) {
-            checkUniquePhone(dto.phone());
-            customer.setPhone(dto.phone());
+        if (dto.phone() != null && !dto.phone().isBlank()) {
+            String updatedPhone = normalizePhone(dto.phone());
+            if (!customer.getPhone().equals(updatedPhone)) {
+                checkUniquePhone(updatedPhone);
+                customer.setPhone(updatedPhone);
+            }
         }
 
-        if (dto.cpf() != null) {
+        if (dto.cpf() != null && !dto.cpf().isBlank()) {
+            String updatedCpf = normalizeCpf(dto.cpf());
             if (customer.getCpf() == null) {
-                checkUniqueCpf(dto.cpf());
-                customer.setCpf(dto.cpf());
-            } else if (!dto.cpf().equals(customer.getCpf())) {
+                checkUniqueCpf(updatedCpf);
+                customer.setCpf(updatedCpf);
+            } else if (!updatedCpf.equals(customer.getCpf())) {
                 throw new ResourceConflictException("CPF não pode ser alterado uma vez cadastrado!");
             }
         }
@@ -139,8 +152,28 @@ public class CustomerService {
     }
 
     private String normalizePhone(String phone) {
-        if (phone == null) return null;
-        return phone.replaceAll("\\D", "");
+        if (phone == null || phone.isBlank()) {
+            return null;
+        }
+        String normalizedPhone = phone.replaceAll("\\D", "");
+        int length = normalizedPhone.length();
+        if (length != 10 && length != 11) {
+            throw new InvalidDataException("Telefone inválido. Deve conter 10 ou 11 dígitos (incluindo o DDD).");
+        }
+
+        return normalizedPhone;
+    }
+
+    private String normalizeCpf(String cpf) {
+        if (cpf == null || cpf.isBlank()) {
+            return null;
+        }
+        String normalizedCpf = cpf.replaceAll("\\D", "");
+        if (normalizedCpf.length() != 11) {
+            throw new InvalidDataException("CPF inválido. Deve conter exatamente 11 dígitos.");
+        }
+
+        return normalizedCpf;
     }
 
 }

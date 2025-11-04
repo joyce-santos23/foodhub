@@ -74,6 +74,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InvalidDataException.class)
+    public ProblemDetail handleInvalidData(InvalidDataException ex, HttpServletRequest request) {
+        return ProblemDetailFactory.create(
+                HttpStatus.BAD_REQUEST, // 400
+                "https://api.foodhub.com/errors/invalid-data",
+                "Dados de requisição inválidos",
+                ex.getMessage(),
+                Map.of("path", request.getRequestURI())
+        );
+    }
+
 
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthenticationError(AuthenticationException ex, HttpServletRequest request) {

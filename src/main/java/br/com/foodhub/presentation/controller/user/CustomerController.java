@@ -1,5 +1,6 @@
 package br.com.foodhub.presentation.controller.user;
 
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import br.com.foodhub.presentation.controller.api.user.CustomerApi;
 import br.com.foodhub.application.dto.generic.ApiResponseGen;
 import br.com.foodhub.application.dto.pagination.PageResponseDto;
@@ -47,8 +48,6 @@ public class CustomerController implements CustomerApi {
             @RequestParam(defaultValue = "asc") String direction
     ) {
         boolean asc = !"desc".equalsIgnoreCase(direction);
-
-        // 🚨 Chama a Service para a busca por nome
         PageResponseDto<CustomerResponseDto> ownersPage = service.findByNamePaginated(
                 name, page, size, sortBy, asc
         );
@@ -64,7 +63,8 @@ public class CustomerController implements CustomerApi {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CustomerResponseDto> getAuthenticatedCustomer(@AuthenticationPrincipal User user) {
+    public ResponseEntity<CustomerResponseDto> getAuthenticatedCustomer(@AuthenticationPrincipal UserPrincipal principal) {
+        User user = principal.getUser();
         CustomerResponseDto customer = service.findById(user.getId());
         return ResponseEntity.ok(customer);
     }
@@ -82,15 +82,17 @@ public class CustomerController implements CustomerApi {
     public ResponseEntity<CustomerResponseDto> update(
             @PathVariable Long id,
             @RequestBody CustomerUpdateDto dto,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
+        User user = principal.getUser();
         CustomerResponseDto updated = service.update(id, dto, user);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponseGen> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponseGen> delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+        User user = principal.getUser();
         service.delete(id, user);
         return ResponseEntity.ok(new ApiResponseGen("Usuário deletado com sucesso!"));
     }

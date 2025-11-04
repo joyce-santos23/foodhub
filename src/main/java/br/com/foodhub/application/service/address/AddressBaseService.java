@@ -18,7 +18,7 @@ public class AddressBaseService {
                 .orElseGet(() -> {
                     AddressBaseDto dto = cepApiClient.getAddressByCep(cep);
                     AddressBase address = new AddressBase();
-                    address.setCep(dto.cep());
+                    address.setCep(cep);
                     address.setStreet(dto.street());
                     address.setNeighborhood(dto.neighborhood());
                     address.setCity(dto.city());

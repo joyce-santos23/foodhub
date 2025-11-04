@@ -40,4 +40,21 @@ public record OwnerResponseDto(
                         phone.substring(7)
                 );
         }
+
+    public String cnpj() {
+        if (cnpj == null) return null;
+        String digits = cnpj.replaceAll("\\D", "");
+
+        if (digits.length() != 14) {
+            return cnpj;
+        }
+
+        return String.format("%s.%s.%s/%s-%s",
+                digits.substring(0, 2),
+                digits.substring(2, 5),
+                digits.substring(5, 8),
+                digits.substring(8, 12),
+                digits.substring(12)
+        );
+    }
 }

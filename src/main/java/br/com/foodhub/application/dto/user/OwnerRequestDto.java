@@ -16,7 +16,6 @@ public record OwnerRequestDto(
         @Schema(description = "E-mail do proprietário", example = "carlos.pereira@email.com")
         String email,
 
-        @Pattern(regexp = "\\d{11}", message = "Telefone deve ter 11 dígitos")
         @NotBlank(message = "O telefone não pode ser nulo")
         @Schema(description = "Telefone do proprietário com DDD", example = "11987654321")
         String phone,

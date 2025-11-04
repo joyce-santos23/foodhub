@@ -1,5 +1,6 @@
 package br.com.foodhub.presentation.controller.address;
 
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import br.com.foodhub.presentation.controller.api.address.UserAddressApi;
 import br.com.foodhub.application.service.address.UserAddressService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,8 @@ public class UserAddressController implements UserAddressApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UserAddressResponseDto>> getAllAddress(
             @PathVariable Long userId,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal UserPrincipal principal) {
+        User user = principal.getUser();
         return ResponseEntity.ok(service.getAll(user, userId));
 
     }
@@ -36,8 +38,9 @@ public class UserAddressController implements UserAddressApi {
     public ResponseEntity<UserAddressResponseDto> createAddress(
             @PathVariable Long userId,
             @RequestBody @Valid UserAddressRequestDto dto,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
+        User user = principal.getUser();
         UserAddressResponseDto responseDto = service.create(
                 userId,
                 user,
@@ -56,9 +59,9 @@ public class UserAddressController implements UserAddressApi {
             @PathVariable Long userId,
             @PathVariable Long addressId,
             @RequestBody UserAddressRequestDto dto,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-
+        User user = principal.getUser();
         UserAddressResponseDto response = service.update(userId, addressId, dto, user);
         return ResponseEntity.ok(response);
 
@@ -69,8 +72,9 @@ public class UserAddressController implements UserAddressApi {
     public ResponseEntity<ApiResponseGen> deleteAddress(
             @PathVariable Long userId,
             @PathVariable Long addressId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
+        User user = principal.getUser();
         service.delete(userId, addressId, user);
         return ResponseEntity.ok(new ApiResponseGen("Endereço deletado com sucesso!"));
 

@@ -5,7 +5,7 @@ import br.com.foodhub.application.dto.pagination.PageResponseDto;
 import br.com.foodhub.application.dto.user.CustomerRequestDto;
 import br.com.foodhub.application.dto.user.CustomerResponseDto;
 import br.com.foodhub.application.dto.user.CustomerUpdateDto;
-import br.com.foodhub.domain.entities.user.User; // 🚨 NOVO IMPORT
+import br.com.foodhub.infrastructure.config.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -106,11 +106,13 @@ public interface CustomerApi {
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil encontrado.")
+            @ApiResponse(responseCode = "200", description = "Perfil encontrado."),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
     })
     @GetMapping("/me")
     ResponseEntity<CustomerResponseDto> getAuthenticatedCustomer(
-            @Parameter(hidden = true) User user
+            @Parameter(hidden = true) UserPrincipal principal
     );
 
     // =================================================================
@@ -122,7 +124,7 @@ public interface CustomerApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso."),
-            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos ou CPF/Email/Telefone já em uso.",
+            @ApiResponse(responseCode = "409", description = "Dados de entrada inválidos ou CPF/Email/Telefone já em uso.",
                     content = @Content)
     })
     @PostMapping
@@ -138,17 +140,21 @@ public interface CustomerApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Atualização realizada com sucesso."),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado. O recurso não pertence ao usuário.",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado.",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "Dados de entrada inválidos ou CPF/Email/Telefone já em uso.",
                     content = @Content)
     })
     @PutMapping("/{id}")
     ResponseEntity<CustomerResponseDto> update(
             @PathVariable Long id,
             @RequestBody CustomerUpdateDto dto,
-            @Parameter(hidden = true) User user
-    );
+            @Parameter(hidden = true)UserPrincipal principal
+            );
 
     // =================================================================
     // DELETE (AUTENTICADO - CHECAGEM DE POSSE)
@@ -160,6 +166,8 @@ public interface CustomerApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente deletado com sucesso."),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido.",
+                    content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado. O recurso não pertence ao usuário.",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado.",
@@ -168,6 +176,6 @@ public interface CustomerApi {
     @DeleteMapping("/{id}")
     ResponseEntity<ApiResponseGen> delete(
             @PathVariable Long id,
-            @Parameter(hidden = true) User user
+            @Parameter(hidden = true) UserPrincipal principal
     );
 }
